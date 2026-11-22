@@ -10,9 +10,17 @@ namespace MinionManaging
         public static MinionSender Instance { get; private set; }
         public static AscensionManager _ascensionManager => AscensionManager.instance;
 
+        private static bool ModEnabled => Plugin.Config.Enabled.Value;
+
         private void Awake()
         {
             Instance = this;
+        }
+
+        private void Start()
+        {
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+                _ => Plugin.Config.Enabled.SaveEntry());
         }
 
 
@@ -22,7 +30,7 @@ namespace MinionManaging
             [HarmonyPostfix]
             public static void OnMinionCanBeClaimedCheck(Minion __instance, bool __result)
             {
-                if (__result)
+                if (__result && ModEnabled)
                 {
                     __instance.ClaimQuest();
                 }
@@ -35,7 +43,7 @@ namespace MinionManaging
             [HarmonyPostfix]
             public static void OnMinionISStandingBuCheck(Minion __instance, bool __result)
             {
-                if (__result)
+                if (__result && ModEnabled)
                 {
                     if (__instance.GetCost() < SlayerPoints.pre)
                     {

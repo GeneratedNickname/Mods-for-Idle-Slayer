@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine;
 using Il2Cpp;
+using IdleSlayerMods.Common.Extensions;
 using System.Diagnostics;
 using System.Collections.Generic;
 
@@ -45,8 +46,18 @@ namespace AutoRageMode
             }
         }
 
+        private void Start()
+        {
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Settings.Enabled,
+                _ => Plugin.Settings.Enabled.SaveEntry());
+        }
+
+        private static bool ModEnabled => Plugin.Settings.Enabled.Value;
+
         private void LateUpdate()
         {
+            if (!ModEnabled) return;
+
             // User pressed the key—move to the next mode
             if (Input.GetKeyDown(Plugin.Settings.RageToggleKey.Value))
                 CycleMode();
@@ -263,14 +274,15 @@ namespace AutoRageMode
 
         public bool IsSoulsHordeModeEnabled()
         {
-            return _currentMode == Mode.SoulsHorde;
+            return ModEnabled && _currentMode == Mode.SoulsHorde;
         }
         public bool IsHordeModeEnabled()
         {
-            return _currentMode == Mode.Horde;
+            return ModEnabled && _currentMode == Mode.Horde;
         }
         private void ActivateRage()
         {
+            if (!ModEnabled) return; // e.g. a delayed activation that was queued before switching off
             _rageMode.Activate();
             _rageNotUsed = false;
             Plugin.DLog("Rage cooldown reset.");

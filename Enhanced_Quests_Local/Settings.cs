@@ -5,6 +5,7 @@ namespace Enhanced_Quests_Local;
 
 internal sealed class Settings(string configName) : BaseConfig(configName)
 {
+    internal MelonPreferences_Entry<bool> Enabled;
     internal MelonPreferences_Entry<bool> ResetDailies;
     internal MelonPreferences_Entry<bool> ResetWeeklies;
     internal MelonPreferences_Entry<bool> ResetPortal;
@@ -14,6 +15,8 @@ internal sealed class Settings(string configName) : BaseConfig(configName)
 
     protected override void SetBindings()
     {
+        Enabled = Bind("Enabled", true,
+            "Master switch: turn the whole mod on or off (also in the in-game mod settings)");
         ResetDailies = Bind("ResetDailies", true,
             "Toggle Reset Dailies");
         ResetWeeklies = Bind("ResetWeeklies", true,

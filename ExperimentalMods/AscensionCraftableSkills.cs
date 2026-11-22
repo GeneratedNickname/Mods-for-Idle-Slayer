@@ -1,4 +1,5 @@
 ﻿using Il2Cpp;
+using IdleSlayerMods.Common.Extensions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections;
@@ -25,8 +26,17 @@ namespace ExperimentalMods
             _dailyQuests = _craftableItems.DailyQuests;
             _portalButton = PortalButton.instance;
         }
+
+        private void Start()
+        {
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+                _ => Plugin.Config.Enabled.SaveEntry());
+        }
+
         private void LateUpdate()
         {
+            if (!Plugin.Config.Enabled.Value) return;
+
             if (Input.GetKeyDown(KeyCode.Q))
             {
                 _weeklyQuests.unlocked = !_weeklyQuests.unlocked;

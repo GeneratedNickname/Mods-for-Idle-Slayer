@@ -53,6 +53,8 @@ namespace QualityOfLifeMods
         }
         private void LateUpdate()
         {
+            if (!Plugin.ModEnabled) return;
+
             if (Input.GetKeyDown(Plugin.Settings.ChestPurchaseToggleKey.Value))
             {
                 ToggleChestExtinction("Chest Extinction Purchaser", ref _chestExtinctionPurchaserEnabled, Plugin.Settings.ChestPurchaseShowPopup.Value);

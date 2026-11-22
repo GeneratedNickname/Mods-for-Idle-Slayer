@@ -1,4 +1,5 @@
 using HarmonyLib;
+using IdleSlayerMods.Common.Extensions;
 using Il2Cpp;
 using UnityEngine;
 using UnityEngine.UI;
@@ -83,6 +84,17 @@ y    private bool WeekliesChanged;
     {
         //        _lastIsRunner = GameState.IsRunner();
 
+        Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Settings.Enabled,
+            enabled =>
+            {
+                Plugin.Settings.Enabled.SaveEntry();
+                if (enabled)
+                {
+                    CheckToAllowQuestReroll();
+                    CheckToRegenerate();
+                }
+            });
+
         CheckToAllowQuestReroll();
         MelonCoroutines.Start(InitialiseQuests());
 
@@ -99,8 +111,12 @@ y    private bool WeekliesChanged;
         */
     }
 
+    private static bool ModEnabled => Plugin.Settings.Enabled.Value;
+
     public void Update()
     {
+        if (!ModEnabled) return;
+
         bool isRunner = GameState.IsRunner();
 
 /*        if (_lastIsRunner && !isRunner)
@@ -247,6 +263,8 @@ y    private bool WeekliesChanged;
 
     public void CheckToRegenerate()
     {
+        if (!ModEnabled) return;
+
         RefreshQuestList();
         if (_questsList == null || _questsList.Count == 0) return; // quest UI not loaded yet
 
@@ -637,13 +655,13 @@ y    private bool WeekliesChanged;
 */
     public void CheckToResetPortal()
     {
-        if (_portalButton.currentCd > 0 && Plugin.Settings.ResetPortal.Value)
+        if (ModEnabled && _portalButton.currentCd > 0 && Plugin.Settings.ResetPortal.Value)
             _portalButton.currentCd = 0;
     }
 
     public void CheckToAllowQuestReroll()
     {
-        if (Plugin.Settings.ResetReroll.Value)
+        if (ModEnabled && Plugin.Settings.ResetReroll.Value)
         {
             _dailyQuestReroll.rerollEnabled = true;
             _weeklyQuestReroll.rerollEnabled = true;

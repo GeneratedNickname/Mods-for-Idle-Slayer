@@ -14,6 +14,8 @@ namespace QualityOfLifeMods {
             if (Debug.isDebugBuild)
                 Melon<Plugin>.Logger.Msg("Souls event detected!");
 
+            if (!Plugin.ModEnabled) return;
+
             if (ChestExtinctionPurchaser.Instance != null)
             {
                 if (ChestExtinctionPurchaser.Instance.ChestExtinctionPurchaserEnabled)
@@ -39,6 +41,8 @@ namespace QualityOfLifeMods {
         {
             if (Debug.isDebugBuild)
                 Melon<Plugin>.Logger.Msg("Souls event finished!");
+
+            if (!Plugin.ModEnabled) return;
 
             if (ChestExtinctionPurchaser.Instance != null)
             {

@@ -45,6 +45,18 @@ namespace NoSpecialBoxesMode
             }
         }
 
+        private static bool ModEnabled => Plugin.Config.Enabled.Value;
+
+        private void Start()
+        {
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+                _ =>
+                {
+                    Plugin.Config.Enabled.SaveEntry();
+                    ToggleSpecialBoxes();
+                });
+        }
+
         private void LateUpdate()
         {
 #if DEBUG
@@ -75,7 +87,7 @@ namespace NoSpecialBoxesMode
 
 #endif
 
-            if (Input.GetKeyDown(Plugin.Config.SpecialBoxesToggleKey.Value))
+            if (ModEnabled && Input.GetKeyDown(Plugin.Config.SpecialBoxesToggleKey.Value))
             {
                 ToggleSetting("Special Boxes", ref _specialBoxesEnabled, Plugin.Config.SpecialBoxesShowPopup.Value);
                 ToggleSpecialBoxes();
@@ -95,6 +107,13 @@ namespace NoSpecialBoxesMode
 
         private void ToggleSpecialBoxes()
         {
+            if (!ModEnabled)
+            {
+                // Mod switched off: back to the chance the game had when the mod started.
+                _playerInventory.specialRandomBoxChance = _specialRandomBoxChanceBackup;
+                return;
+            }
+
             if (!_specialBoxesEnabled)
             {
                 _playerInventory.specialRandomBoxChance = 0f;
@@ -120,7 +139,7 @@ namespace NoSpecialBoxesMode
 
         public void SkipSlider(BonusStartSlider slider)
         {
-            if (slider == null || !GameState.IsBonus()) return;
+            if (slider == null || !ModEnabled || !GameState.IsBonus()) return;
 
             MelonCoroutines.Start(ConfirmSliderWhenReady(slider));
         }

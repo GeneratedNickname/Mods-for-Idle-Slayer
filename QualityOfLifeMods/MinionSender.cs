@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Reflection;
 using MelonLoader;
 using Il2Cpp;
+using IdleSlayerMods.Common.Extensions;
 
 namespace QualityOfLifeMods
 {
@@ -36,9 +37,14 @@ namespace QualityOfLifeMods
                 if (Debug.isDebugBuild)
                     Melon<Plugin>.Logger.Msg("MinionManager instance is null! Cannot activate Minion Sender.");
             }
+
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Settings.Enabled,
+                _ => Plugin.Settings.Enabled.SaveEntry());
         }
         private void LateUpdate()
         {
+            if (!Plugin.ModEnabled) return;
+
             if (Input.GetKeyDown(Plugin.Settings.MinionSenderToggleKey.Value))
             {
                 ToggleMinionSender("Minion Sender", ref _minionSenderEnabled, Plugin.Settings.MinionSenderShowPopup.Value);

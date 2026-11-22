@@ -1,11 +1,14 @@
 using Il2Cpp;
+using IdleSlayerMods.Common.Extensions;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace HawkTuah
 {
     public class HawkTuahRename : MonoBehaviour
     {
+        private const string OriginalName = "Hawk Eye";
+        private const string NewName = "Hawk Tuah";
+
         public static HawkTuahRename Instance { get; private set; }
 
         PlayerInventory playerInventory;
@@ -27,15 +30,20 @@ namespace HawkTuah
 
         }
 
+        public void Start()
+        {
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+                _ => Plugin.Config.Enabled.SaveEntry());
+        }
+
         public void Update()
         {
-            if (hawkeye != null)
-            { 
-                if (hawkeye.localizedName == "Hawk Eye")
-                {
-                    hawkeye.localizedName = "Hawk Tuah";
-                }
-            }
+            if (hawkeye == null) return;
+
+            // Switched off: put the original (English) name back.
+            var (from, to) = Plugin.Config.Enabled.Value ? (OriginalName, NewName) : (NewName, OriginalName);
+            if (hawkeye.localizedName == from)
+                hawkeye.localizedName = to;
         }
     }
 }

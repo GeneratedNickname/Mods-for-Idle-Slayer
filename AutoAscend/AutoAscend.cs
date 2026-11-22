@@ -66,6 +66,8 @@ namespace AutoAscendMod
             RefreshScrollList("Powers");
             RefreshScrollList("Upgrades");
 
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+                _ => Plugin.Config.Enabled.SaveEntry());
         }
 
 /*        private void InitialisePowers()
@@ -107,7 +109,7 @@ namespace AutoAscendMod
 
         public void LateUpdate()
         {
-
+            if (!Plugin.Config.Enabled.Value) return;
             if (!ascendReady && SlayerPoints.pre >= SlayerPoints.lifetime * 0.1 && SlayerPoints.pre > 25 && GameState.IsRunner())
             {
                 MelonCoroutines.Start(AscendAndPurchase());
@@ -163,6 +165,12 @@ namespace AutoAscendMod
 
             // 3) when we get here, the “current” waitTime has elapsed
             //    (it may be 300, or 60 from the moment we hit 20%, or 30 from the moment we hit 100%)
+            if (!Plugin.Config.Enabled.Value)
+            {
+                ascendReady = false;
+                yield break;
+            }
+
             _ascensionManager.Ascend();
             for (int i = 0; i < 10; i++)
             {

@@ -10,6 +10,7 @@ internal sealed class ConfigFile(string configName) : BaseConfig(configName)
     internal MelonPreferences_Entry<int> CurrentNumberOfWeaponsToKeep;
     internal MelonPreferences_Entry<int> RequirementPerLevel;
 
+    internal MelonPreferences_Entry<bool> Enabled;
     internal MelonPreferences_Entry<bool> BreakWeaponsEnabled;
     internal MelonPreferences_Entry<bool> BreakDupesEnabled;
     internal MelonPreferences_Entry<bool> BreakLowLevelEnabled;
@@ -20,6 +21,8 @@ internal sealed class ConfigFile(string configName) : BaseConfig(configName)
 
     protected override void SetBindings()
     {
+        Enabled = Bind("Enabled", true,
+            "Master switch: turn the whole mod on or off (also in the in-game mod settings)");
         BreakWeaponsEnabled = Bind("Break Weapons Enabled", true,
             "Enable autobreaking of weapons in Armory");
         BreakDupesEnabled = Bind("Break Dupe Weapons", true,

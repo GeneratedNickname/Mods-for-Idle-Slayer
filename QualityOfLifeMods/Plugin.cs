@@ -15,6 +15,9 @@ public class Plugin : MelonMod
     internal static Settings Settings;
     internal static ModHelper ModHelperInstance;
 
+    /// <summary>Master switch; every feature (hotkeys and game hooks) checks it.</summary>
+    internal static bool ModEnabled => Settings.Enabled.Value;
+
     public override void OnInitializeMelon()
     {
         ClassInjector.RegisterTypeInIl2Cpp<ChestExtinctionPurchaser>();

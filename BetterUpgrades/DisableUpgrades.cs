@@ -14,9 +14,11 @@ public class DisableUpgrades: MonoBehaviour
     private readonly String SpecialRandomBoxMagnetName = "upgrade_special_random_box_vertical_magnet";
     private readonly String DeltaWormsName = "enemy_delta_worm_p";
 
-    private static Boolean DisableRandomBoxMagnet => !Plugin.Settings.RandomBoxMagnet.Value;
-    private static Boolean DisableSpecialRandomBoxMagnet => !Plugin.Settings.SpecialRandomBoxMagnet.Value;
-    private static Boolean DisableDeltaWorms => !Plugin.Settings.DeltaWorms.Value;
+    // With the mod switched off nothing is disabled, so upgrades the mod disabled earlier get enabled again.
+    private static Boolean ModEnabled => Plugin.Settings.Enabled.Value;
+    private static Boolean DisableRandomBoxMagnet => ModEnabled && !Plugin.Settings.RandomBoxMagnet.Value;
+    private static Boolean DisableSpecialRandomBoxMagnet => ModEnabled && !Plugin.Settings.SpecialRandomBoxMagnet.Value;
+    private static Boolean DisableDeltaWorms => ModEnabled && !Plugin.Settings.DeltaWorms.Value;
 
     public void Awake()
     {
@@ -27,6 +29,18 @@ public class DisableUpgrades: MonoBehaviour
     }
 
     public void Start()
+    {
+        Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Settings.Enabled,
+            _ =>
+            {
+                Plugin.Settings.Enabled.SaveEntry();
+                ApplySettings();
+            });
+
+        ApplySettings();
+    }
+
+    private void ApplySettings()
     {
         if (_playerInventory != null)
         {

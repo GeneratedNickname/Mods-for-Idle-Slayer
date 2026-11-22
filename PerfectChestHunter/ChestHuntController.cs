@@ -36,6 +36,13 @@ public class ChestHuntController : MonoBehaviour
 
     private void Update()
     {
+        if (!_settings.Enabled.Value)
+        {
+            // Switched off: stop acting and remove the overlay. Switching back on mid-round picks up from here.
+            if (_roundActive) EndRound();
+            return;
+        }
+
         HandleHotkeys();
 
         if (!GameState.IsChestHunt())
@@ -138,6 +145,8 @@ public class ChestHuntController : MonoBehaviour
         var helper = Plugin.ModHelperInstance;
         if (helper == null) return;
 
+        helper.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, _settings.Enabled,
+            _ => _settings.Enabled.SaveEntry());
         helper.CreateSettingsToggle("Auto-open Chests (off: Overlay only)", _settings.AutoOpenChests,
             _ => _settings.AutoOpenChests.SaveEntry());
         helper.CreateSettingsToggle("Open Chests Randomly/Perfectly", _settings.PerfectChestsHuntOn,

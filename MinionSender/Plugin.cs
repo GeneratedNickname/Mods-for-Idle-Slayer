@@ -14,9 +14,11 @@ public class Plugin : MelonMod
 {
     internal static readonly MelonLogger.Instance Logger = Melon<Plugin>.Logger;
     internal static ModHelper ModHelperInstance;
+    internal static ConfigFile Config;
 
     public override void OnInitializeMelon()
     {
+        Config = new(MyPluginInfo.PLUGIN_GUID);
         LoggerInstance.Msg($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         ModHelper.ModHelperMounted += SetModHelperInstance;
 

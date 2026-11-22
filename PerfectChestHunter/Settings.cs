@@ -9,6 +9,8 @@ internal sealed class Settings(string configName) : BaseConfig(configName)
 {
     private const string Category = "Perfect Chest Hunter";
 
+    internal MelonPreferences_Entry<bool> Enabled;
+
     // Mode is stored as two booleans so it can be driven by the in-game settings toggles.
     internal MelonPreferences_Entry<bool> AutoOpenChests;
     internal MelonPreferences_Entry<bool> PerfectChestsHuntOn;
@@ -24,6 +26,8 @@ internal sealed class Settings(string configName) : BaseConfig(configName)
 
     protected override void SetBindings()
     {
+        Enabled = Bind(Category, "Enabled", true,
+            "Master switch: turn the whole mod on or off (also in the in-game mod settings)");
         AutoOpenChests = Bind(Category, "AutoOpenChests", true,
             "Open chests automatically. When off, the mod only shows the contents overlay (Overlay mode)");
         PerfectChestsHuntOn = Bind(Category, "PerfectChestsHuntOn", true,

@@ -1,4 +1,5 @@
 using Il2Cpp;
+using IdleSlayerMods.Common.Extensions;
 using MelonLoader;
 using UnityEngine;
 using Input = UnityEngine.Input;
@@ -21,8 +22,16 @@ public class BonusStageCompleter : MonoBehaviour
         _skipAtSpiritBoostEnabled = Plugin.Settings.EnableSkipAtSpiritBoost.Value;
     }
 
+    private void Start()
+    {
+        Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Settings.Enabled,
+            _ => Plugin.Settings.Enabled.SaveEntry());
+    }
+
     private void LateUpdate()
     {
+        if (!Plugin.Settings.Enabled.Value) return;
+
 #if DEBUG
         if (Input.GetKeyDown(KeyCode.P))
         {

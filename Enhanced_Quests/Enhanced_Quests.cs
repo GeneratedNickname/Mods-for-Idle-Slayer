@@ -1,4 +1,5 @@
 using HarmonyLib;
+using IdleSlayerMods.Common.Extensions;
 using Il2Cpp;
 using MelonLoader;
 using System.Collections;
@@ -46,14 +47,29 @@ public class Enhanced_Quests : MonoBehaviour
 
     public void Start()
     {
+        Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Settings.Enabled,
+            enabled =>
+            {
+                Plugin.Settings.Enabled.SaveEntry();
+                if (enabled)
+                {
+                    CheckToAllowQuestReroll();
+                    CheckToRegenerate();
+                }
+            });
+
         CheckToAllowQuestReroll();
         MelonCoroutines.Start(InitialiseQuests());
 
         CheckToRegenerate();
     }
 
+    private static bool ModEnabled => Plugin.Settings.Enabled.Value;
+
     public void Update()
     {
+        if (!ModEnabled) return;
+
         bool isRunner = GameState.IsRunner();
 
         if (isRunner && !questsChecking && Plugin.Settings.AutoClaimQuests.Value)
@@ -113,6 +129,8 @@ public class Enhanced_Quests : MonoBehaviour
 
     public void CheckToRegenerate()
     {
+        if (!ModEnabled) return;
+
         RefreshQuestList();
         if (_questsList != null && _questsList.Count > 0)
         {
@@ -192,13 +210,13 @@ public class Enhanced_Quests : MonoBehaviour
 
     public void CheckToResetPortal()
     {
-        if (_portalButton.currentCd > 0 && Plugin.Settings.ResetPortal.Value)
+        if (ModEnabled && _portalButton.currentCd > 0 && Plugin.Settings.ResetPortal.Value)
             _portalButton.currentCd = 0;
     }
 
     public void CheckToAllowQuestReroll()
     {
-        if (Plugin.Settings.ResetReroll.Value)
+        if (ModEnabled && Plugin.Settings.ResetReroll.Value)
         {
             _dailyQuestReroll.rerollEnabled = true;
             _weeklyQuestReroll.rerollEnabled = true;

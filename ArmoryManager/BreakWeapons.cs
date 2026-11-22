@@ -62,7 +62,16 @@ namespace ArmoryManager
             else if (Plugin.Config.RequirementPerLevel.Value > 50)
                 Plugin.Config.RequirementPerLevel.Value = 50;
 
-            SetWeaponLevels();
+            if (ModEnabled)
+                SetWeaponLevels();
+
+            Plugin.ModHelperInstance.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+                _ => {
+                    Plugin.Config.Enabled.SaveEntry();
+                    if (!ModEnabled) StopBreaker();
+                    HighlightSlots();
+                    triggerBreakCheck = true;
+                });
 
             Plugin.ModHelperInstance.CreateSettingsToggle("Break Low Level Weapons", Plugin.Config.BreakLowLevelEnabled,
                 _ => {
@@ -131,8 +140,17 @@ namespace ArmoryManager
             }
         }
 
+        private static bool ModEnabled => Plugin.Config.Enabled.Value;
+
+        private void StopBreaker()
+        {
+            if (_breaker != null) { MelonCoroutines.Stop(_breaker); _breaker = null; }
+            if (_runningFor30Seconds != null) { MelonCoroutines.Stop(_runningFor30Seconds); _runningFor30Seconds = null; }
+        }
+
         public void LateUpdate()
         {
+            if (!ModEnabled) return;
 
             // Overrides the game's armory chest chances; opt-out via the ForceArmoryChestChances setting.
             if (Plugin.Config.ForceArmoryChestChances.Value)
@@ -218,7 +236,7 @@ namespace ArmoryManager
                 var img = slots[i].GetComponent<Image>();
                 if (img != null)
                 {
-                    if (i < _keep)
+                    if (!ModEnabled || i < _keep)
                         img.color = _initialSlotColor; // reset to initial color for slots we want to keep
                     else if (!Plugin.Config.BreakWeaponsEnabled.Value && i < (int)_weaponsManager.GetMaxSlots() - minimumBreak)
                         img.color = new Color(1f, 0.3f, 0.3f, 0.75f * _initialSlotColor.a); // red for slots we want to break
@@ -462,7 +480,8 @@ namespace ArmoryManager
             static void Postfix(WeaponItemInventory __result)
             {
                 // your logic here, __result is the generated inventory item
-                SetWeaponLevel(__result);
+                if (ModEnabled)
+                    SetWeaponLevel(__result);
             }
         }
 

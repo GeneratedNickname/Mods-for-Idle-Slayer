@@ -6,12 +6,15 @@ namespace ExperimentalMods;
 
 internal sealed class ConfigFile(string configName) : BaseConfig(configName)
 {
+    internal MelonPreferences_Entry<bool> Enabled;
     internal MelonPreferences_Entry<KeyCode> AscendToggleKey;
     internal MelonPreferences_Entry<KeyCode> AscendToggleKey2;
     internal MelonPreferences_Entry<bool> AscendShowPopup;
 
     protected override void SetBindings()
     {
+        Enabled = Bind("Experimental Mods", "Enabled", true,
+            "Master switch: turn the whole mod on or off (also in the in-game mod settings)");
         AscendToggleKey = Bind("Auto Ascend Mode", "AscendToggleKey", KeyCode.Z,
             "The key bind for toggling auto rage mode");
         AscendToggleKey2 = Bind("Auto Ascend Mode", "AscendToggleKey2", KeyCode.X,

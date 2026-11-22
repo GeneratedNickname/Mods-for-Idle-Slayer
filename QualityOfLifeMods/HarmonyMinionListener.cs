@@ -12,7 +12,7 @@ namespace QualityOfLifeMods
         [HarmonyPostfix]
         public static void OnMinionsWorkingCheck(bool __result)
         {
-            if (!__result && MinionSender.Instance.MinionSenderEnabled)
+            if (!__result && Plugin.ModEnabled && MinionSender.Instance != null && MinionSender.Instance.MinionSenderEnabled)
             {
                 if (Debug.isDebugBuild)
                     Melon<Plugin>.Logger.Msg("Some minions are not working!");
@@ -27,7 +27,7 @@ namespace QualityOfLifeMods
         [HarmonyPostfix]
         public static void OnMinionsToBeClaimed(bool __result)
         {
-            if (__result && MinionSender.Instance.MinionSenderEnabled)
+            if (__result && Plugin.ModEnabled && MinionSender.Instance != null && MinionSender.Instance.MinionSenderEnabled)
             {
                 if (Debug.isDebugBuild)
                     Melon<Plugin>.Logger.Msg("Minions are ready to be claimed!");

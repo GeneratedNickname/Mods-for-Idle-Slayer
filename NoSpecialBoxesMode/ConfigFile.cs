@@ -8,12 +8,15 @@ namespace NoSpecialBoxesMode;
 // NoSpecialBoxesMode.dll (Live Mod Files), so existing config files keep working.
 internal sealed class ConfigFile(string configName) : BaseConfig(configName)
 {
+    internal MelonPreferences_Entry<bool> Enabled;
     internal MelonPreferences_Entry<KeyCode> SpecialBoxesToggleKey;
     internal MelonPreferences_Entry<bool> SpecialBoxesShowPopup;
     internal MelonPreferences_Entry<bool> NoSpecialBoxesEnabled;
 
     protected override void SetBindings()
     {
+        Enabled = Bind("Special Boxes Mode", "Enabled", true,
+            "Master switch: when off the game's own special box chance is used and the bonus slider is not skipped (also in the in-game mod settings)");
         SpecialBoxesToggleKey = Bind("Special Boxes Mode", "SpecialBoxesToggleKey", KeyCode.S,
             "The key bind for toggling no Special Boxes Mode");
         SpecialBoxesShowPopup = Bind("Special Boxes Mode", "SpecialBoxesShowPopup", true,

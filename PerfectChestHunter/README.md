@@ -14,6 +14,7 @@ Switching mode during a round takes effect immediately: the running auto-opener 
 
 In-game (mod settings):
 
+- **Perfect Chest Hunter**: master switch, turns the whole mod on or off
 - **Auto-open Chests (off: Overlay only)**: off = Overlay mode
 - **Open Chests Randomly/Perfectly**: Perfect or Random when auto-opening
 - **Chest Overlay while Auto-opening**: also show the labels in Perfect / Random mode
@@ -22,6 +23,7 @@ In the config file (`[Perfect Chest Hunter]`):
 
 | Key | Default | |
 | --- | --- | --- |
+| `Enabled` | `true` | Master switch for the whole mod |
 | `AutoOpenChests` | `true` | `false` = Overlay mode |
 | `PerfectChestsHuntOn` | `true` | Perfect (`true`) or Random (`false`) when auto-opening |
 | `ModeCycleKey` | `None` | Key that cycles Perfect → Random → Overlay |

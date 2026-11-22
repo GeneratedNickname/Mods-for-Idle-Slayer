@@ -13,12 +13,16 @@ public class Plugin : MelonMod
 {
     internal static readonly MelonLogger.Instance Logger = Melon<Plugin>.Logger;
     internal static Settings Settings;
-    
+    internal static ModHelper ModHelperInstance;
+
     public override void OnInitializeMelon()
     {
         Settings = new(MyPluginInfo.PLUGIN_GUID);
         Logger.Msg($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
+        ModHelper.ModHelperMounted += SetModHelperInstance;
     }
+
+    private static void SetModHelperInstance(ModHelper instance) => ModHelperInstance = instance;
 
     public override void OnSceneWasLoaded(int buildIndex, string sceneName)
     {

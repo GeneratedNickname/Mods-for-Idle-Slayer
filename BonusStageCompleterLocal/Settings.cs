@@ -6,11 +6,14 @@ namespace BonusStageCompleterLocal;
 
 internal sealed class Settings(string configName) : BaseConfig(configName)
 {
+    internal MelonPreferences_Entry<bool> Enabled;
     internal MelonPreferences_Entry<KeyCode> ToggleKey;
     internal MelonPreferences_Entry<bool> EnableSkipAtSpiritBoost;
     internal MelonPreferences_Entry<bool> ShowPopUpSkipAtSpiritBoost;
     protected override void SetBindings()
     {
+        Enabled = Bind("Bonus Stage Completer", "Enabled", true,
+            "Master switch: turn the whole mod on or off (also in the in-game mod settings)");
         EnableSkipAtSpiritBoost = Bind("Skip At Spirit Boost", "EnableSkipAtSpiritBoost", true,
             "Enable skip at spirit boost appeared bonus stage");
         ToggleKey = Bind("Skip At Spirit Boost", "ToggleKey", KeyCode.J,

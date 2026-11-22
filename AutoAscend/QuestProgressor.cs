@@ -69,6 +69,8 @@ namespace AutoAscendMod
 
         private void LateUpdate()
         {
+            if (!Plugin.Config.Enabled.Value) return;
+
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 CheckQuestList();
@@ -100,7 +102,7 @@ namespace AutoAscendMod
             
 //            Plugin.Logger.Msg("Checking Quest List...");
 
-            if (!GameState.IsRunner()) return;
+            if (!Plugin.Config.Enabled.Value || !GameState.IsRunner()) return;
 
 //            Plugin.Logger.Msg("GameState is Runner, proceeding with quest checks...");
 

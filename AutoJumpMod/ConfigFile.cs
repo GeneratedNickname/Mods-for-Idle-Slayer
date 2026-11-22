@@ -13,7 +13,7 @@ internal sealed class ConfigFile(string configName) : BaseConfig(configName)
     protected override void SetBindings()
     {
         UseAutoJump = Bind("UseAutoJump", false,
-            "Turn Auto Jump on and off");
+            "Master switch: turn Auto Jump on or off (also the toggle key and the in-game mod settings)");
         AutoJumpToggleKey = Bind("Auto Jump Toggle Key", "AutoJumpToggleKey", KeyCode.Z,
             "The key bind for toggling auto jump");
         BootsLockedByMod = Bind("Auto Jump Internal", "BootsLockedByMod", false,

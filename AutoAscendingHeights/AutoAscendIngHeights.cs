@@ -37,7 +37,16 @@ public class AutoAscendIngHeights : MonoBehaviour
     PointerEventData _leftPad, _rightPad;
 
     // state
-    bool _autoAscend = true;
+    // The hotkey and the in-game toggle both drive the saved master switch.
+    static bool AutoAscendOn
+    {
+        get => Plugin.Config.Enabled.Value;
+        set
+        {
+            Plugin.Config.Enabled.Value = value;
+            Plugin.Config.Enabled.SaveEntry();
+        }
+    }
     bool _holdingRight;
 
     float AscendingStartingHeight = -1;
@@ -62,6 +71,9 @@ public class AutoAscendIngHeights : MonoBehaviour
 
         if (AscendingStartingHeight == -1) AscendingStartingHeight = Maps.list.AscendingHeightsStage1.finishAtDistance;
         if (MtOttoStartingHeight == -1) MtOttoStartingHeight = Maps.list.MtOttoAscendingHeights.finishAtDistance;
+
+        Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
+            _ => Plugin.Config.Enabled.SaveEntry());
     }
 
 
@@ -78,7 +90,7 @@ public class AutoAscendIngHeights : MonoBehaviour
             return;
         }
 
-        if (_autoAscend)
+        if (AutoAscendOn)
         {
             Maps.list.AscendingHeightsStage1.finishAtDistance = FinishHeight;
             Maps.list.MtOttoAscendingHeights.finishAtDistance = FinishHeight;
@@ -104,12 +116,12 @@ public class AutoAscendIngHeights : MonoBehaviour
 
     void ToggleAutoAscend()
     {
-        _autoAscend = !_autoAscend;
-        Plugin.Logger.Msg($"AutoAscend: {(_autoAscend ? "ON" : "OFF")}");
+        AutoAscendOn = !AutoAscendOn;
+        Plugin.Logger.Msg($"AutoAscend: {(AutoAscendOn ? "ON" : "OFF")}");
         if (Plugin.Config.AutoAscendingHeightsShowPopup.Value)
             Plugin.ModHelperInstance.ShowNotification(
-                $"Auto Ascend {(_autoAscend ? "Enabled" : "Disabled")}",
-                _autoAscend
+                $"Auto Ascend {(AutoAscendOn ? "Enabled" : "Disabled")}",
+                AutoAscendOn
             );
     }
 
@@ -130,7 +142,7 @@ public class AutoAscendIngHeights : MonoBehaviour
 
     public void SkipSlider(BonusStartSlider slider)
     {
-        if (slider == null || !_autoAscend || !GameState.IsAscendingHeights()) return;
+        if (slider == null || !AutoAscendOn || !GameState.IsAscendingHeights()) return;
 
         MelonCoroutines.Start(ConfirmSliderWhenReady(slider));
     }

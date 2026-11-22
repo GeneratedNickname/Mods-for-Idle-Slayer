@@ -137,6 +137,13 @@ namespace AutoJumpMod
             }
 
             CustomStart();
+
+            Plugin.ModHelperInstance?.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.UseAutoJump,
+                _ =>
+                {
+                    Plugin.Config.UseAutoJump.SaveEntry();
+                    OnAutoJumpSwitched();
+                });
         }
 
 
@@ -338,14 +345,26 @@ namespace AutoJumpMod
         private void JumpToggle()
         {
             if (!Input.GetKeyDown(Plugin.Config.AutoJumpToggleKey.Value)) return;
-            
+
             _autoJump = !_autoJump;
             Plugin.Logger.Msg($"AutoJump is: {(_autoJump ? "ON" : "OFF")} ");
-            Plugin.ModHelperInstance.ShowNotification(
+            Plugin.ModHelperInstance?.ShowNotification(
                 _autoJump ? "Auto Jump enabled!" : "Auto Jump disabled!",
                 _autoJump
             );
             Plugin.Config.UseAutoJump.Value = _autoJump;
+            Plugin.Config.UseAutoJump.SaveEntry();
+            OnAutoJumpSwitched();
+        }
+
+        // UseAutoJump is this mod's master switch (hotkey and in-game toggle).
+        private void OnAutoJumpSwitched()
+        {
+            _autoJump = Plugin.Config.UseAutoJump.Value;
+
+            // Switched off mid bonus stage: the boots logic stops running, so hand the skill back now.
+            if (!_autoJump)
+                RestoreBootsIfLockedByMod();
         }
 
         private void HandleAutoJump()
