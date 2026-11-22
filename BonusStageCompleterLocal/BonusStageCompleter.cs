@@ -14,6 +14,10 @@ public class BonusStageCompleter : MonoBehaviour
     private bool _isInBonusGame;
     private bool _skipAtSpiritBoostEnabled;
 
+    // Read by Auto Jump (via reflection): is this mod completing bonus stages, and does it also skip at spirit boost
+    private bool ModActive => Plugin.Settings.Enabled.Value;
+    private bool SkipAtSpiritBoostActive => ModActive && _skipAtSpiritBoostEnabled;
+
     private void Awake()
     {
         _mapController = GameObject.Find("Map").GetComponent<MapController>();

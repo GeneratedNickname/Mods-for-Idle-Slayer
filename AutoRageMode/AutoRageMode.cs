@@ -24,7 +24,7 @@ namespace AutoRageMode
         private bool _rageNotUsed = false;                                  
         private SoulsBonus soulsEvent;                                      
         private bool _hordeDuringSoulsEvent = false;                        
-        private readonly Dictionary<string, Coroutine> _timers = new();     // Holds active coroutines by key so they can be cancelled cleanly
+        private readonly Dictionary<string, object> _timers = new();        // MelonCoroutines tokens by key so they can be cancelled cleanly
 
 
         private void Awake()
@@ -199,41 +199,40 @@ namespace AutoRageMode
         }
 
 
-        // Start a named coroutine, stopping any previous one with the same key
+        // Start a named coroutine, stopping any previous one with the same key.
+        // The coroutines run on MelonLoader's own host object, so they have to be stopped
+        // through MelonCoroutines.Stop with the token Start returned (this.StopCoroutine
+        // would only stop coroutines started on this component).
         private void StartTimer(string key, IEnumerator routine)
         {
-            // Stop any existing
-            if (_timers.TryGetValue(key, out var old) && old != null)
-                StopCoroutine(old);
-
-            // MelonCoroutines.Start returns object, so cast it
-            Coroutine c = (Coroutine)MelonCoroutines.Start(routine);
-            _timers[key] = c;
+            StopTimer(key);
+            _timers[key] = MelonCoroutines.Start(routine);
         }
 
         // Stop & remove a named coroutine if it exists
         private void StopTimer(string key)
         {
-            if (_timers.TryGetValue(key, out var c) && c != null)
+            if (_timers.TryGetValue(key, out var token))
             {
-                StopCoroutine(c);
                 _timers.Remove(key);
+                if (token != null)
+                    MelonCoroutines.Stop(token);
             }
         }
 
         private IEnumerator RageCooldownTimer()
         {
             yield return new WaitForSeconds(300f); // 5 minutes
+            _timers.Remove("rageCooldown"); // finished, just forget the token
             _rageNotUsed = true;
-            StopTimer("rageCooldown"); // Clear reference after completion
             Plugin.DLog("Rage cooldown has been zero for 5 minutes.");
         }
 
         private IEnumerator DelayedRageModeActivation()
         {
             yield return new WaitForSeconds(2f);
+            _timers.Remove("delayedActivate");
             ActivateRage();
-            StopTimer("delayedActivate");
         }
 
         public void SetActiveEvent(SoulsBonus eventInstance)

@@ -2,32 +2,53 @@
 
 namespace AutoJumpMod;
 
-internal class ModFlagChecker(string qualifiedTypeName, string privateFieldName = "")
+/// <summary>
+/// Looks up another mod's component by type name and reads a bool field or property from it.
+/// Several candidates can be given (e.g. the repo's local build and the released build of a mod,
+/// which live in different assemblies); the first type that exists is used.
+/// </summary>
+internal class ModFlagChecker
 {
+    private readonly (string TypeName, string MemberName)[] _candidates;
     private Type _type;
     private FieldInfo _field;
+    private PropertyInfo _property;
     private bool _initialized;
+
+    public ModFlagChecker(string qualifiedTypeName, string memberName = "")
+        : this((qualifiedTypeName, memberName)) { }
+
+    public ModFlagChecker(params (string TypeName, string MemberName)[] candidates)
+    {
+        _candidates = candidates;
+    }
 
     private void Initialize()
     {
         if (_initialized) return;
         _initialized = true;
 
-        _type = Type.GetType(qualifiedTypeName);
-        if (_type == null)
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+        foreach (var (typeName, memberName) in _candidates)
         {
-            Plugin.DLog($"Type not found: {qualifiedTypeName}");
+            var type = Type.GetType(typeName);
+            if (type == null)
+            {
+                Plugin.DLog($"Type not found: {typeName}");
+                continue;
+            }
+
+            _type = type;
+            if (string.IsNullOrEmpty(memberName)) return;
+
+            _field = type.GetField(memberName, flags);
+            if (_field == null)
+                _property = type.GetProperty(memberName, flags);
+            if (_field == null && _property == null)
+                Plugin.DLog($"Member '{memberName}' not found on {type.FullName}");
             return;
         }
-
-        if (string.IsNullOrEmpty(privateFieldName)) return;
-
-        _field = _type.GetField(
-            privateFieldName,
-            BindingFlags.NonPublic | BindingFlags.Instance
-        );
-        if (_field == null)
-            Plugin.DLog($"Field '{privateFieldName}' not found on {_type.FullName}");
     }
 
     private UnityEngine.Object FindInstance()
@@ -54,10 +75,16 @@ internal class ModFlagChecker(string qualifiedTypeName, string privateFieldName 
 
     public bool IsLoaded() => FindInstance() != null;
 
-    public bool GetBoolFlag()
+    public bool GetBoolFlag() => ReadFlag(FindInstance(), whenNoMember: false);
+
+    /// <summary>Loaded, and the flag is true (a candidate without a member counts as always true).</summary>
+    public bool IsActive() => ReadFlag(FindInstance(), whenNoMember: true);
+
+    private bool ReadFlag(UnityEngine.Object inst, bool whenNoMember)
     {
-        var inst = FindInstance();
-        if (inst == null || _field == null) return false;
-        return (bool)_field.GetValue(inst)!;
+        if (inst == null) return false;
+        if (_field == null && _property == null) return whenNoMember;
+        var value = _field != null ? _field.GetValue(inst) : _property.GetValue(inst);
+        return value is true;
     }
 }

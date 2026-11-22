@@ -28,7 +28,7 @@ In the config file (`[Perfect Chest Hunter]`):
 | `PerfectChestsHuntOn` | `true` | Perfect (`true`) or Random (`false`) when auto-opening |
 | `ModeCycleKey` | `None` | Key that cycles Perfect → Random → Overlay |
 | `MultiplyArmoryChests` | `false` | Perfect mode: open armory chests right after the duplicators |
-| `ArmoryChestMultiplyToggleKey` | `C` | Toggles the setting above |
+| `ArmoryChestMultiplyToggleKey` | `V` | Toggles the setting above (was `C` before 2.2.0, which clashed with Quality Of Life Mods; an existing config keeps its saved key) |
 | `ShowOverlayWhileAutoOpening` | `false` | Overlay labels in Perfect / Random mode too |
 | `OverlayFontSize` | `0` | Label font size, `0` = same as the game's chest text |
 | `OverlayOffsetX` / `OverlayOffsetY` | `4` / `0` | Label position relative to the right edge of the chest icon |

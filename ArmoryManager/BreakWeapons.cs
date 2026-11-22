@@ -4,6 +4,7 @@ using Il2Cpp;
 using MelonLoader;
 using MelonLoader.TinyJSON;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 //using AutoAscendMod;
@@ -68,7 +69,13 @@ namespace ArmoryManager
             Plugin.ModHelperInstance.CreateSettingsToggle(MyPluginInfo.PLUGIN_NAME, Plugin.Config.Enabled,
                 _ => {
                     Plugin.Config.Enabled.SaveEntry();
-                    if (!ModEnabled) StopBreaker();
+                    if (ModEnabled)
+                        SetWeaponLevels();
+                    else
+                    {
+                        StopBreaker();
+                        RestoreWeaponLevels();
+                    }
                     HighlightSlots();
                     triggerBreakCheck = true;
                 });
@@ -120,8 +127,29 @@ namespace ArmoryManager
                 SetWeaponLevel(weapon);
         }
         
-        private static void SetWeaponLevel(WeaponItemInventory weapon) =>
-            weapon?.item?.levelRequirementIncreasePerLevel = Plugin.Config.RequirementPerLevel.Value;
+        // levelRequirementIncreasePerLevel lives on the shared weapon template (WeaponItem), so it is
+        // remembered per template the first time it is changed, to put it back when the mod is switched off.
+        static readonly Dictionary<IntPtr, (WeaponItem Item, double Original)> _originalRequirementPerLevel = new();
+
+        private static void SetWeaponLevel(WeaponItemInventory weapon)
+        {
+            var item = weapon?.item;
+            if (item == null) return;
+
+            if (!_originalRequirementPerLevel.ContainsKey(item.Pointer))
+                _originalRequirementPerLevel[item.Pointer] = (item, item.levelRequirementIncreasePerLevel);
+
+            item.levelRequirementIncreasePerLevel = Plugin.Config.RequirementPerLevel.Value;
+        }
+
+        private static void RestoreWeaponLevels()
+        {
+            foreach (var (item, original) in _originalRequirementPerLevel.Values)
+                if (item != null)
+                    item.levelRequirementIncreasePerLevel = original;
+
+            _originalRequirementPerLevel.Clear();
+        }
 
         private IEnumerator ResetBreakerDuringRunner()
         {
@@ -138,6 +166,7 @@ namespace ArmoryManager
                 MelonCoroutines.Stop(_breaker);
                 _breaker = null;
             }
+            _runningFor30Seconds = null;
         }
 
         private static bool ModEnabled => Plugin.Config.Enabled.Value;
@@ -169,9 +198,16 @@ namespace ArmoryManager
 
             if (GameState.IsRunner() && (triggerBreakCheck || !lastIsRunner) && !AscendCalled)
             {
-                _breaker ??= (Coroutine)MelonCoroutines.Start(RunBreaker());
+                // Only (re)arm the 30 s safety stop together with a new breaker run. Starting it on every
+                // frame a check was pending (while the previous breaker was still busy) piled up timers.
+                if (_breaker == null)
+                {
+                    _breaker = (Coroutine)MelonCoroutines.Start(RunBreaker());
 
-                _runningFor30Seconds = (Coroutine)MelonCoroutines.Start(ResetBreakerDuringRunner());
+                    if (_runningFor30Seconds != null)
+                        MelonCoroutines.Stop(_runningFor30Seconds);
+                    _runningFor30Seconds = (Coroutine)MelonCoroutines.Start(ResetBreakerDuringRunner());
+                }
             }
 
             lastIsRunner = GameState.IsRunner();

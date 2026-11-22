@@ -52,10 +52,6 @@
       <None Include="AutoAscendingHeights.csproj.user" />
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\AutoRageMode\AutoRageMode.csproj" />
-    </ItemGroup>
-
 	<ItemGroup>
 		<None Include="Assets\manifest.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

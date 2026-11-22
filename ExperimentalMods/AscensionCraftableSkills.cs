@@ -37,12 +37,12 @@ namespace ExperimentalMods
         {
             if (!Plugin.Config.Enabled.Value) return;
 
-            if (Input.GetKeyDown(KeyCode.Q))
+            if (Input.GetKeyDown(Plugin.Config.WeeklyQuestsToggleKey.Value))
             {
                 _weeklyQuests.unlocked = !_weeklyQuests.unlocked;
                 Plugin.Logger.Msg($"Weekly Quests are {(_weeklyQuests.unlocked ? "Unlocked" : "Locked")}");
             }
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetKeyDown(Plugin.Config.DailyQuestsToggleKey.Value))
             {
                 _dailyQuests.unlocked = !_dailyQuests.unlocked;
                 Plugin.Logger.Msg($"Daily Quests are {(_dailyQuests.unlocked ? "Unlocked" : "Locked")}");

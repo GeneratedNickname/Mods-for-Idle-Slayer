@@ -28,8 +28,7 @@ public class Plugin : MelonMod
         LoggerInstance.Msg($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         ModHelper.ModHelperMounted += SetModHelperInstance;
 
-        var harmony = new HarmonyLib.Harmony(MyPluginInfo.PLUGIN_NAME);
-        harmony.PatchAll();
+        // Harmony patches are applied by MelonLoader itself (MelonMod auto-patching)
     }
 
     private static void SetModHelperInstance(ModHelper instance) => ModHelperInstance = instance;

@@ -54,8 +54,15 @@ namespace AutoJumpMod
 
         // reflection-based mod checks
         private readonly ModFlagChecker _bscChecker = new(
-            "BonusStageCompleter.BonusStageCompleter, BonusStageCompleter",
-            "_skipAtSpiritBoostEnabled"
+            // the repo's build (respects its on/off switch)
+            ("BonusStageCompleterLocal.BonusStageCompleter, BonusStageCompleterLocal", "SkipAtSpiritBoostActive"),
+            // the released Bonus Stage Completer mod
+            ("BonusStageCompleter.BonusStageCompleter, BonusStageCompleter", "_skipAtSpiritBoostEnabled")
+        );
+        // is Bonus Stage Completer loaded and switched on (the released mod has no switch)
+        private readonly ModFlagChecker _bscActiveChecker = new(
+            ("BonusStageCompleterLocal.BonusStageCompleter, BonusStageCompleterLocal", "ModActive"),
+            ("BonusStageCompleter.BonusStageCompleter, BonusStageCompleter", "")
         );
         private readonly ModFlagChecker _autoBoostChecker = new(
             "AutoBoost.AutoBoost, AutoBoost",
@@ -164,7 +171,7 @@ namespace AutoJumpMod
 
             if (now - _lastModCheckTime > 1f)
             {
-                _isBscLoadedCached = _bscChecker.IsLoaded();
+                _isBscLoadedCached = _bscActiveChecker.IsActive();
                 _isAutoBoostLoadedCached = _autoBoostChecker.IsLoaded();
 /*                _isArmoryManagerLoadedCached = _armoryManagerChecker.IsLoaded();
 */                _lastModCheckTime = now;

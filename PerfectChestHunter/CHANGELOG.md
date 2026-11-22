@@ -1,3 +1,8 @@
+### Version 2.2.0
+
+- Master on/off switch (`Enabled`, and a toggle in the in-game mod settings)
+- Armory multiply hotkey default changed from `C` to `V` (`C` is also Quality Of Life Mods' chest purchaser key); an existing config keeps its saved key
+
 ### Version 2.1.0
 
 - New **Overlay** mode: no auto-opening, only labels each chest with its contents next to the chest icon

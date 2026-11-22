@@ -38,7 +38,8 @@ internal sealed class Settings(string configName) : BaseConfig(configName)
         MultiplyArmoryChests = Bind(Category, "MultiplyArmoryChests", false,
             "Perfect mode: open Armory Chests right after the duplicators so they get multiplied");
         // The trailing space in the key name is from the original release; kept so existing configs still load.
-        ArmoryChestMultiplyToggleKey = Bind(Category, "ArmoryChestMultiplyToggleKey ", KeyCode.C,
+        // Default was C, which Quality Of Life Mods' chest purchaser also uses.
+        ArmoryChestMultiplyToggleKey = Bind(Category, "ArmoryChestMultiplyToggleKey ", KeyCode.V,
             "The key bind for toggling Armory Chest Maximums");
 
         ShowOverlayWhileAutoOpening = Bind(Category, "ShowOverlayWhileAutoOpening", false,
