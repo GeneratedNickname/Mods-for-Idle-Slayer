@@ -18,7 +18,7 @@ public class Plugin : MelonMod
 
     public override void OnInitializeMelon()
     {
-        ClassInjector.RegisterTypeInIl2Cpp<ChestKiller>();
+        ClassInjector.RegisterTypeInIl2Cpp<ChestHuntController>();
         Settings = new(MyPluginInfo.PLUGIN_GUID);
         Logger.Msg($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         ModHelper.ModHelperMounted += SetModHelperInstance;
@@ -32,6 +32,10 @@ public class Plugin : MelonMod
 
         var chestHunt = GameObject.Find("Chest Hunt");
         if (chestHunt)
-            chestHunt.AddComponent<ChestKiller>();
+            chestHunt.AddComponent<ChestHuntController>();
     }
+
+    /// <summary>Logs only in Debug builds; the call and its message are compiled out of Release builds.</summary>
+    [System.Diagnostics.Conditional("DEBUG")]
+    internal static void LogDebug(string message) => Logger.Msg(message);
 }

@@ -37,9 +37,9 @@
 		<!-- Clean up temp folder -->
 		<RemoveDir Directories="$(TempFolder)" />
 
-		<!-- Copy to mod manager folder in deployed and non deployed context, ready for testing -->
-		<Copy SourceFiles="@(MainFiles)" DestinationFolder="$(LocalAppData)\IdleSlayerModManager\ModLoader\Mods" SkipUnchangedFiles="True" ContinueOnError="False" />
-		<Copy SourceFiles="@(CustomFiles)" DestinationFolder="$(LocalAppData)\IdleSlayerModManager\Mods\$(AssemblyName)" SkipUnchangedFiles="True" ContinueOnError="False" />
+		<!-- Copy to mod manager folder in deployed and non deployed context, ready for testing (only if the mod manager is installed) -->
+		<Copy Condition="Exists('$(LocalAppData)\IdleSlayerModManager')" SourceFiles="@(MainFiles)" DestinationFolder="$(LocalAppData)\IdleSlayerModManager\ModLoader\Mods" SkipUnchangedFiles="True" ContinueOnError="False" />
+		<Copy Condition="Exists('$(LocalAppData)\IdleSlayerModManager')" SourceFiles="@(CustomFiles)" DestinationFolder="$(LocalAppData)\IdleSlayerModManager\Mods\$(AssemblyName)" SkipUnchangedFiles="True" ContinueOnError="False" />
 
 	</Target>
 </Project>
