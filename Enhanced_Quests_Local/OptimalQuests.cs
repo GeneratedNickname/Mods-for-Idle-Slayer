@@ -428,13 +428,17 @@ public class OptimalQuests : MonoBehaviour
         }
     }
 
+    // These hooks are applied even when the OptimalQuests component is not registered (it is only used in
+    // custom builds), so every one of them must do nothing when there is no instance. Otherwise they throw
+    // inside the game's own MapController / quest manager methods.
+
     [HarmonyPatch(typeof(MapController), "ChangeMap")]
     public class Patch_MapControllerChangeMap
     {
         static void Postfix(MapController __instance)
         {
             if (__instance == null) return;
-            OptimalQuests.Instance.DelayedReroll("Daily");
+            OptimalQuests.Instance?.DelayedReroll("Daily");
         }
     }
 
@@ -443,12 +447,13 @@ public class OptimalQuests : MonoBehaviour
     {
         static void Postfix(DailyQuestsManager __instance)
         {
-            if (__instance == null) return;
+            var quests = OptimalQuests.Instance;
+            if (__instance == null || quests == null) return;
 
-            if (OptimalQuests.Instance.PauseRoutines())
-                OptimalQuests.Instance.SetTriggerRegen("Daily");
+            if (quests.PauseRoutines())
+                quests.SetTriggerRegen("Daily");
             else
-                OptimalQuests.Instance.DelayedReroll("Daily");
+                quests.DelayedReroll("Daily");
         }
     }
     [HarmonyPatch(typeof(WeeklyQuestsManager), "RegenerateWeeklies")]
@@ -456,11 +461,13 @@ public class OptimalQuests : MonoBehaviour
     {
         static void Postfix(WeeklyQuestsManager __instance)
         {
-            if (__instance == null) return;
-            if (OptimalQuests.Instance.PauseRoutines())
-                OptimalQuests.Instance.SetTriggerRegen("Weekly");
+            var quests = OptimalQuests.Instance;
+            if (__instance == null || quests == null) return;
+
+            if (quests.PauseRoutines())
+                quests.SetTriggerRegen("Weekly");
             else
-                OptimalQuests.Instance.DelayedReroll("Weekly");
+                quests.DelayedReroll("Weekly");
         }
     }
 
@@ -470,7 +477,7 @@ public class OptimalQuests : MonoBehaviour
         static void Postfix(DailyQuestsManager __instance)
         {
             if (__instance == null) return;
-            OptimalQuests.Instance.DelayedReroll("Daily");
+            OptimalQuests.Instance?.DelayedReroll("Daily");
         }
     }
 
@@ -480,7 +487,7 @@ public class OptimalQuests : MonoBehaviour
         static void Postfix(WeeklyQuestsManager __instance)
         {
             if (__instance == null) return;
-            OptimalQuests.Instance.DelayedReroll("Weekly");
+            OptimalQuests.Instance?.DelayedReroll("Weekly");
         }
     }
 

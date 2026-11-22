@@ -134,10 +134,14 @@ namespace ArmoryManager
         public void LateUpdate()
         {
 
-            if (_playerInventory.armoryItemAscendingHeightsChance < 100)
-                _playerInventory.armoryItemAscendingHeightsChance = 100;
-            if (_playerInventory.increaseBonusStageArmoryChestsChance < 100)
-                _playerInventory.increaseBonusStageArmoryChestsChance = 100;
+            // Overrides the game's armory chest chances; opt-out via the ForceArmoryChestChances setting.
+            if (Plugin.Config.ForceArmoryChestChances.Value)
+            {
+                if (_playerInventory.armoryItemAscendingHeightsChance < 100)
+                    _playerInventory.armoryItemAscendingHeightsChance = 100;
+                if (_playerInventory.increaseBonusStageArmoryChestsChance < 100)
+                    _playerInventory.increaseBonusStageArmoryChestsChance = 100;
+            }
 
             if ((AscendCalled) && _breaker != null)
             {
@@ -413,7 +417,8 @@ namespace ArmoryManager
             // 8) Refresh the UI list
             _weaponsManager.RefreshList();
 
-            // 9) Track broken‐weapon count & achievements
+            // 9) Track broken‐weapon count & achievements (the game's own break does this; so must we)
+            _playerInventory.weaponsBroken++;
             SaveManager.SetString(
                 "Weapons Broken",
                 _playerInventory.weaponsBroken.ToString()

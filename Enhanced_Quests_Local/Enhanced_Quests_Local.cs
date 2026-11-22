@@ -248,6 +248,7 @@ y    private bool WeekliesChanged;
     public void CheckToRegenerate()
     {
         RefreshQuestList();
+        if (_questsList == null || _questsList.Count == 0) return; // quest UI not loaded yet
 
         int dailyQuestsCount = 0;
         int weeklyQuestsCount = 0;

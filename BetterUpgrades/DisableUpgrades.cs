@@ -79,7 +79,7 @@ public class DisableUpgrades: MonoBehaviour
         Upgrade upgradeToDisable = null;
 
         foreach (Upgrade upgrade in upgradesList)
-        { 
+        {
             if (upgrade == null) continue;
             if (upgrade.name == upgradeName)
             {
@@ -88,13 +88,38 @@ public class DisableUpgrades: MonoBehaviour
             }
         }
 
-        if (PluginSetting && upgradeToDisable != null)
+        if (upgradeToDisable == null) return;
+
+        var disabledByMod = DisabledByModNames();
+
+        if (PluginSetting)
         {
             upgradeToDisable.disabled = true;
             upgradeToDisable.bought = false;
+            disabledByMod.Add(upgradeName);
 
             Plugin.Logger.Msg($"Upgrade {upgradeToDisable.localizedName} disabled");
         }
+        else if (disabledByMod.Remove(upgradeName) && upgradeToDisable.disabled)
+        {
+            // Setting was switched back on: undo our own disable. Only upgrades this mod disabled are touched.
+            // The upgrade was un-bought when it was disabled, so it has to be bought again.
+            upgradeToDisable.disabled = false;
+            Plugin.Logger.Msg($"Upgrade {upgradeToDisable.localizedName} re-enabled");
+        }
+
+        SaveDisabledByModNames(disabledByMod);
+    }
+
+    private static HashSet<string> DisabledByModNames() =>
+        new(Plugin.Settings.DisabledByMod.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+
+    private static void SaveDisabledByModNames(HashSet<string> names)
+    {
+        var value = string.Join(",", names.OrderBy(n => n));
+        if (value == Plugin.Settings.DisabledByMod.Value) return;
+        Plugin.Settings.DisabledByMod.Value = value;
+        Plugin.Settings.DisabledByMod.SaveEntry();
     }
 
 /*

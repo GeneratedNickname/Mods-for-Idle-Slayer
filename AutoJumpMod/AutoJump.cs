@@ -1,4 +1,5 @@
 ﻿using Il2Cpp;
+using IdleSlayerMods.Common.Extensions;
 using MelonLoader;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -119,8 +120,9 @@ namespace AutoJumpMod
             };
 
             InitializeSkills();
+            RestoreBootsIfLockedByMod();
 
-            _prevBootsUnlocked = _bootsSkill.unlocked;
+            _prevBootsUnlocked = _bootsSkill != null && _bootsSkill.unlocked;
 
             var REM = RandomEventManager.instance.randomEvents;
             if (REM != null)
@@ -194,7 +196,34 @@ namespace AutoJumpMod
 //        public bool IsArmoryManagerLoaded() => _isArmoryManagerLoadedCached;
 
 
-        void OnDestroy() => Instance = Instance == this ? null : Instance;
+        void OnDestroy()
+        {
+            // Leaving the scene or quitting mid bonus stage: give the skill back before the game can save it locked.
+            RestoreBootsIfLockedByMod();
+            Instance = Instance == this ? null : Instance;
+        }
+
+        // The bonus-stage logic temporarily locks the purchased climbing boots skill. That is game state the
+        // game saves, so every change goes through here and is recorded in the config: if the game closes or
+        // crashes while the skill is locked, the next start unlocks it again instead of losing the purchase.
+        private void SetBootsUnlocked(bool unlocked)
+        {
+            if (_bootsSkill == null) return;
+            _bootsSkill.unlocked = unlocked;
+
+            if (Plugin.Config.BootsLockedByMod.Value == !unlocked) return;
+            Plugin.Config.BootsLockedByMod.Value = !unlocked;
+            Plugin.Config.BootsLockedByMod.SaveEntry();
+        }
+
+        private void RestoreBootsIfLockedByMod()
+        {
+            if (!Plugin.Config.BootsLockedByMod.Value || _bootsSkill == null) return;
+
+            Plugin.Logger.Msg("Restoring climbing boots skill that Auto Jump had locked");
+            _bootsPurchased = true;
+            SetBootsUnlocked(true);
+        }
 
         private void InitializeSkills()
         {
@@ -279,12 +308,12 @@ namespace AutoJumpMod
             {
                 if (_bonusSection == 3 && !_bonusSection3Completed)
                 {
-                    _bootsSkill.unlocked = _pm.isMoving;
+                    SetBootsUnlocked(_pm.isMoving);
                 }
                 else
                 {
                     if (_bonusMapCtrl.showCurrentTime)
-                        _bootsSkill.unlocked = true;
+                        SetBootsUnlocked(true);
                 }
 
                 if (dual)
@@ -296,13 +325,13 @@ namespace AutoJumpMod
             }
             else if (inStage2 && _bootsPurchased)
             {
-                _bootsSkill.unlocked = _bonusMapCtrl.showCurrentTime;
+                SetBootsUnlocked(_bonusMapCtrl.showCurrentTime);
                 _bootsChanged = true;
             }
             else if (_bootsChanged && GameState.IsRunner() && _bootsPurchased)
             {
                 _bootsChanged = false;
-                _bootsSkill.unlocked = true;
+                SetBootsUnlocked(true);
             }
         }
 
@@ -508,7 +537,7 @@ namespace AutoJumpMod
             [HarmonyPostfix]
             public static void Postfix(RandomBox __instance)
             {
-                if (__instance == null) return;
+                if (__instance == null || Instance == null) return;
 
                 if (GameState.IsBonus() && Instance.BootsPurchased)
                     Instance.LockBoots();
@@ -517,7 +546,7 @@ namespace AutoJumpMod
                     Instance._bonusSection3Completed = true;
             }
         }
-        private void LockBoots() => _bootsSkill.unlocked = false;
+        private void LockBoots() => SetBootsUnlocked(false);
 
         [HarmonyPatch(typeof(Arrow), nameof(Arrow.Awake))]
         static class Patch_Arrow_Awake

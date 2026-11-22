@@ -94,7 +94,7 @@ public class AutoAscendIngHeights : MonoBehaviour
         }
         else
         {
-            _ascendingCtrl.currentAscendingHeightsMap.finishAtDistance = AscendingStartingHeight;
+            Maps.list.AscendingHeightsStage1.finishAtDistance = AscendingStartingHeight;
             Maps.list.MtOttoAscendingHeights.finishAtDistance = MtOttoStartingHeight;
         }
     }
@@ -126,20 +126,25 @@ public class AutoAscendIngHeights : MonoBehaviour
     };
 
 
+    const float SliderTimeout = 10f;
+
     public void SkipSlider(BonusStartSlider slider)
     {
-        if (_autoAscend && GameState.IsAscendingHeights())
-        {
-            if (slider == null) return;
+        if (slider == null || !_autoAscend || !GameState.IsAscendingHeights()) return;
 
-            while (!slider.sliderReady)
-            {
-                Plugin.Logger.Debug("Waiting for slider to be ready...");
-            }
+        MelonCoroutines.Start(ConfirmSliderWhenReady(slider));
+    }
 
+    // The slider is not ready yet when it is set up. Wait for it across frames;
+    // spinning in a loop here would block the game's main thread and freeze it.
+    static IEnumerator ConfirmSliderWhenReady(BonusStartSlider slider)
+    {
+        var giveUpAt = Time.time + SliderTimeout;
+        while (slider != null && !slider.sliderReady && Time.time < giveUpAt)
+            yield return null;
+
+        if (slider != null && slider.sliderReady)
             slider.confirmAction?.Invoke();
-
-        }
     }
 
     [HarmonyPatch(typeof(BonusStartSlider), "SetRandomPuzzle")]
@@ -148,7 +153,7 @@ public class AutoAscendIngHeights : MonoBehaviour
         [HarmonyPostfix]
         static void Postfix(BonusStartSlider __instance)
         {
-            AutoAscendIngHeights.Instance.SkipSlider(__instance);
+            AutoAscendIngHeights.Instance?.SkipSlider(__instance);
         }
     }
 

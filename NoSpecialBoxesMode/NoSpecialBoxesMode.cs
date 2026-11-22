@@ -1,8 +1,9 @@
-﻿using HarmonyLib;
+﻿using System.Collections;
+using HarmonyLib;
 using IdleSlayerMods.Common.Extensions;
 using Il2Cpp;
+using MelonLoader;
 using UnityEngine;
-using static MelonLoader.MelonLogger;
 
 namespace NoSpecialBoxesMode
 {
@@ -115,19 +116,25 @@ namespace NoSpecialBoxesMode
                 }
             }
         }
+        private const float SliderTimeout = 10f;
+
         public void SkipSlider(BonusStartSlider slider)
         {
-            if (GameState.IsBonus())
-            {
-                if (slider == null) return;
+            if (slider == null || !GameState.IsBonus()) return;
 
-                while (!slider.sliderReady)
-                {
-                    Plugin.Logger.Debug("Waiting for slider to be ready...");
-                }
+            MelonCoroutines.Start(ConfirmSliderWhenReady(slider));
+        }
 
+        // The slider is not ready yet when it is set up. Wait for it across frames;
+        // spinning in a loop here would block the game's main thread and freeze it.
+        private static IEnumerator ConfirmSliderWhenReady(BonusStartSlider slider)
+        {
+            var giveUpAt = Time.time + SliderTimeout;
+            while (slider != null && !slider.sliderReady && Time.time < giveUpAt)
+                yield return null;
+
+            if (slider != null && slider.sliderReady)
                 slider.confirmAction?.Invoke();
-            }
         }
 
         [HarmonyPatch(typeof(BonusStartSlider), "SetRandomPuzzle")]
@@ -136,7 +143,7 @@ namespace NoSpecialBoxesMode
             [HarmonyPostfix]
             static void Postfix(BonusStartSlider __instance)
             {
-                NoSpecialBoxes.Instance.SkipSlider(__instance);
+                NoSpecialBoxes.Instance?.SkipSlider(__instance);
                 Plugin.Logger.Debug("Detected BonusStartSlider creation.");
             }
         }

@@ -223,12 +223,7 @@ namespace AutoAscendMod
 
                     cost = power.CalculateCost(diff);
 
-                    while (cost < _playerInventory.coins) 
-                    {
-                        _shopManager.SelectStack(10);
-                        _shopManager.BuyPower(power);
-                        cost = power.CalculateCost(10);
-                    }
+                    BuyPowerInStacks(power, 10, cost);
                 }
                 else 
                 {
@@ -237,12 +232,7 @@ namespace AutoAscendMod
 
                     cost = power.CalculateCost(diff);
 
-                    while (cost < _playerInventory.coins)
-                    {
-                        _shopManager.SelectStack(50);
-                        _shopManager.BuyPower(power);
-                        cost = power.CalculateCost(50);
-                    }
+                    BuyPowerInStacks(power, 50, cost);
                 }
             }
 
@@ -254,6 +244,22 @@ namespace AutoAscendMod
 
         }
 
+
+        private const int MaxStacksPerPass = 100;
+
+        // Buys stacks while affordable. Stops as soon as a purchase does not raise the level
+        // (locked or maxed power, rejected purchase): the old unbounded loop froze the game then.
+        private void BuyPowerInStacks(Power power, int stack, double cost)
+        {
+            for (int i = 0; i < MaxStacksPerPass && cost < _playerInventory.coins; i++)
+            {
+                int levelBefore = power.level;
+                _shopManager.SelectStack(stack);
+                _shopManager.BuyPower(power);
+                if (power.level <= levelBefore) break;
+                cost = power.CalculateCost(stack);
+            }
+        }
 
         private void KeyPresses()
         {
