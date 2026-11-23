@@ -39,7 +39,6 @@ Where a mod changed game state, switching it off puts that back where it can:
 | Auto Jump | uses its existing `UseAutoJump` setting as the switch; gives back the climbing boots skill if it was locked |
 | Better Upgrades | re-enables the upgrades it disabled (they have to be bought again) |
 | No Special Boxes Mode | restores the game's special box chance; stops skipping the bonus slider |
-| Hawk Tuah | renames the upgrade back to "Hawk Eye" |
 | Armory Manager | restores the slot colours and the weapons' level requirement per level; stops the 100% armory chest chances |
 | Auto Rage Mode | keeps the selected mode for when it is switched back on |
 | No Sync Game Load | takes effect from the next start (the mod only acts on the title screen) |
